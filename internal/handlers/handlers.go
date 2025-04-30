@@ -15,7 +15,12 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 
 func UploadHandler(w http.ResponseWriter, r *http.Request) {
 
-	file, header, err := r.FormFile("file")
+	if err := r.ParseMultipartForm(10 << 20); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	file, header, err := r.FormFile("myFile")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -42,7 +47,6 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer out.Close()
-
 	if _, err := out.WriteString(result); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
